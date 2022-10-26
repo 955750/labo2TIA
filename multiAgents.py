@@ -67,14 +67,40 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-        successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        successorGameState = currentGameState.generatePacmanSuccessor(action) # mapa con pacman, fantasma, cocos y puntuación (del estado sucesor)
+        print("successorGameState = " + str(successorGameState))
+        newPos = successorGameState.getPacmanPosition() # posición (x, y)
+        print("newPos = " + str(newPos))
+        newFood = successorGameState.getFood() # comida true/false (grid)
+        print("newFood = " + str(newFood))
         newGhostStates = successorGameState.getGhostStates()
+        print("newGhostStates = " + str(newGhostStates)) # estado de los fantasmas (como si fuera pacmnan
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        print("newScaredTimes = " + str(newScaredTimes))
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # Calcular distancia con la comida más cercana
+        dist_comida_min = -1 # valor por defecto para indicar que todavía no tiene valor
+        for i in newFood.asList():
+            distancia_actual_comida = manhattanDistance(newPos, i)
+            if dist_comida_min == -1:
+                dist_comida_min = distancia_actual_comida
+            else:
+                if distancia_actual_comida < dist_comida_min:
+                    dist_comida_min = distancia_actual_comida
+        puntuacion_pos = (120 - dist_comida_min) * len(newGhostStates)
+        # Calcular distancia con la comida más cercana
+        dist_total_fantasmas = 0
+        for ghost in newGhostStates:
+            pos_fantasma = ghost.getPosition()
+            distancia_actual_fantasma = manhattanDistance(newPos, pos_fantasma)
+            dist_total_fantasmas += distancia_actual_fantasma
+        puntuacion_neg = 10 - dist_total_fantasmas
+
+        valor_final = puntuacion_pos - puntuacion_neg
+        print(valor_final)
+        return valor_final
+        #return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -135,7 +161,57 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # print(gameState)
+        # print(gameState.getLegalActions(3))
+        # estados_sucesores = gameState.generatePacmanSuccessor('West')
+        # print(estados_sucesores)
+        # print(gameState.getNumAgents())
+        # print(gameState.isWin())
+        # print(gameState.isLose())
+        profundidad = 1
+        return self.max_value(gameState, 1)
+        #print(gameState.getLegalActions(0))
+        #util.raiseNotDefined()
+
+    def max_value(self, gameState, profundidad):
+        v = -1000000
+        acciones_legales = gameState.getLegalActions(0)
+        for accion in acciones_legales:
+            print("Profundidad: " + str(profundidad))
+            print("Indice agente: 0")
+            print("v: " + str(v))
+            print()
+            v = max(v, self.min_value(gameState.generateSuccessor(0, accion), 1, profundidad))
+        return v
+
+    def min_value(self, gameState, agente_ind, profundidad):
+        v = 1000000
+        acciones_legales = gameState.getLegalActions(agente_ind)
+        if agente_ind == gameState.getNumAgents() - 1:
+            if profundidad == self.depth:
+                v = self.evaluationFunction(gameState)
+                return v
+            else:
+                for accion in acciones_legales:
+                    print("Profundidad: " + str(profundidad))
+                    print("Indice agente: " + str(agente_ind))
+                    print("v: " + str(v))
+                    print()
+                    v = min(v, self.max_value(gameState.generateSuccessor(agente_ind, accion)), profundidad + 1)
+
+        for accion in acciones_legales:
+            # print("V = " + str(v))
+            # print("min_value = " + str(self.min_value(gameState.generateSuccessor(agente_ind, accion),  agente_ind + 1)))
+            print("Profundidad: " + str(profundidad))
+            print("Indice agente: " + str(agente_ind))
+            print("Acciones legales: " + str(acciones_legales))
+            print("Accion: " + str(accion))
+            print("estado: " + str(gameState))
+            print("v: " + str(v))
+            print()
+            #print(gameState.generateSuccessor(agente_ind, 'South'))
+            v = min(v, self.min_value(gameState.generateSuccessor(agente_ind, accion), agente_ind + 1, profundidad))
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
