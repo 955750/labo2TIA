@@ -161,57 +161,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # print(gameState)
-        # print(gameState.getLegalActions(3))
-        # estados_sucesores = gameState.generatePacmanSuccessor('West')
-        # print(estados_sucesores)
-        # print(gameState.getNumAgents())
-        # print(gameState.isWin())
-        # print(gameState.isLose())
+        mejor_accion = None
+        v_max = float('-inf')
         profundidad = 1
-        return self.max_value(gameState, 1)
-        #print(gameState.getLegalActions(0))
+        acciones_legales = gameState.getLegalActions(0)
+        for accion in acciones_legales:
+            siguiente_estado = gameState.generateSuccessor(0, accion)
+            v_actual = self.min_value(siguiente_estado, 1, profundidad)
+            if v_actual > v_max:
+                v_max = v_actual
+                mejor_accion = accion
+        return mejor_accion
+
         #util.raiseNotDefined()
 
     def max_value(self, gameState, profundidad):
-        v = -1000000
+        v = float('-inf')
+        if gameState.isWin() or gameState.isLose():
+            v = self.evaluationFunction(gameState)
+            return v
         acciones_legales = gameState.getLegalActions(0)
         for accion in acciones_legales:
-            print("Profundidad: " + str(profundidad))
-            print("Indice agente: 0")
-            print("v: " + str(v))
-            print()
-            v = max(v, self.min_value(gameState.generateSuccessor(0, accion), 1, profundidad))
+            siguiente_estado = gameState.generateSuccessor(0, accion)
+            v = max(v, self.min_value(siguiente_estado, 1, profundidad))
         return v
 
     def min_value(self, gameState, agente_ind, profundidad):
-        v = 1000000
+        v = float('inf')
+        if gameState.isWin() or gameState.isLose():
+            v = self.evaluationFunction(gameState)
+            return v
         acciones_legales = gameState.getLegalActions(agente_ind)
-        if agente_ind == gameState.getNumAgents() - 1:
-            if profundidad == self.depth:
-                v = self.evaluationFunction(gameState)
-                return v
-            else:
-                for accion in acciones_legales:
-                    print("Profundidad: " + str(profundidad))
-                    print("Indice agente: " + str(agente_ind))
-                    print("v: " + str(v))
-                    print()
-                    v = min(v, self.max_value(gameState.generateSuccessor(agente_ind, accion)), profundidad + 1)
-
         for accion in acciones_legales:
-            # print("V = " + str(v))
-            # print("min_value = " + str(self.min_value(gameState.generateSuccessor(agente_ind, accion),  agente_ind + 1)))
-            print("Profundidad: " + str(profundidad))
-            print("Indice agente: " + str(agente_ind))
-            print("Acciones legales: " + str(acciones_legales))
-            print("Accion: " + str(accion))
-            print("estado: " + str(gameState))
-            print("v: " + str(v))
-            print()
-            #print(gameState.generateSuccessor(agente_ind, 'South'))
-            v = min(v, self.min_value(gameState.generateSuccessor(agente_ind, accion), agente_ind + 1, profundidad))
-
+            siguiente_estado = gameState.generateSuccessor(agente_ind, accion)
+            if agente_ind == gameState.getNumAgents() - 1:
+                if profundidad == self.depth:
+                    v = min(v, self.evaluationFunction(siguiente_estado))
+                else:
+                    v = min(v, self.max_value(siguiente_estado, profundidad + 1))
+            else:
+                v = min(v, self.min_value(siguiente_estado, agente_ind + 1, profundidad))
+        return v
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
