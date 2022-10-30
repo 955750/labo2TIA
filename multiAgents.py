@@ -288,6 +288,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         acciones_legales = gameState.getLegalActions(0)
         for accion in acciones_legales:
             siguiente_estado = gameState.generateSuccessor(0, accion)
+            #print(f"siguiente accion: {accion}")
             v_actual = self.exp_value(siguiente_estado, 1, profundidad)
             if v_actual > v_max:
                 v_max = v_actual
@@ -309,20 +310,20 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def exp_value(self, gameState, agente_ind, profundidad):
         v = 0
-        # if gameState.isWin() or gameState.isLose():
-        #     v = self.evaluationFunction(gameState)
-        #     return v
+        if gameState.isWin() or gameState.isLose():
+            v = self.evaluationFunction(gameState)
+            return v
         acciones_legales = gameState.getLegalActions(agente_ind)
         for accion in acciones_legales:
             siguiente_estado = gameState.generateSuccessor(agente_ind, accion)
             if agente_ind == gameState.getNumAgents() - 1:
                 if profundidad == self.depth:
                     v += self.evaluationFunction(siguiente_estado)
-                    v /= len(acciones_legales)
                 else:
                     v += self.max_value(siguiente_estado, profundidad + 1)
             else:
                 v += self.exp_value(siguiente_estado, agente_ind + 1, profundidad)
+        v /= len(acciones_legales)
         return v
 
 def betterEvaluationFunction(currentGameState):
