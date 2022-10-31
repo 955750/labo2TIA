@@ -18,6 +18,7 @@ import random, util
 
 from game import Agent
 
+
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -27,7 +28,6 @@ class ReflexAgent(Agent):
     it in any way you see fit, so long as you don't touch our method
     headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -45,7 +45,7 @@ class ReflexAgent(Agent):
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -67,20 +67,21 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-        successorGameState = currentGameState.generatePacmanSuccessor(action) # mapa con pacman, fantasma, cocos y puntuación (del estado sucesor)
+        successorGameState = currentGameState.generatePacmanSuccessor(
+            action)  # mapa con pacman, fantasma, cocos y puntuación (del estado sucesor)
         print("successorGameState = " + str(successorGameState))
-        newPos = successorGameState.getPacmanPosition() # posición (x, y)
+        newPos = successorGameState.getPacmanPosition()  # posición (x, y)
         print("newPos = " + str(newPos))
-        newFood = successorGameState.getFood() # comida true/false (grid)
+        newFood = successorGameState.getFood()  # comida true/false (grid)
         print("newFood = " + str(newFood))
         newGhostStates = successorGameState.getGhostStates()
-        print("newGhostStates = " + str(newGhostStates)) # estado de los fantasmas (como si fuera pacmnan
+        print("newGhostStates = " + str(newGhostStates))  # estado de los fantasmas (como si fuera pacmnan
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         print("newScaredTimes = " + str(newScaredTimes))
 
         "*** YOUR CODE HERE ***"
         # Calcular distancia con la comida más cercana
-        dist_comida_min = -1 # valor por defecto para indicar que todavía no tiene valor
+        dist_comida_min = -1  # valor por defecto para indicar que todavía no tiene valor
         for i in newFood.asList():
             distancia_actual_comida = manhattanDistance(newPos, i)
             if dist_comida_min == -1:
@@ -100,7 +101,8 @@ class ReflexAgent(Agent):
         valor_final = puntuacion_pos - puntuacion_neg
         print(valor_final)
         return valor_final
-        #return successorGameState.getScore()
+        # return successorGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -111,6 +113,7 @@ def scoreEvaluationFunction(currentGameState):
     (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -127,10 +130,11 @@ class MultiAgentSearchAgent(Agent):
     is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -173,7 +177,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 mejor_accion = accion
         return mejor_accion
 
-        #util.raiseNotDefined()
+        # util.raiseNotDefined()
 
     def max_value(self, gameState, profundidad):
         v = float('-inf')
@@ -203,6 +207,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 v = min(v, self.min_value(siguiente_estado, agente_ind + 1, profundidad))
         return v
 
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -231,7 +236,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             alpha = max(alpha, v_max)
         return mejor_accion
 
-        #util.raiseNotDefined()
+        # util.raiseNotDefined()
 
     def max_value(self, gameState, profundidad, alpha, beta):
         v = float('-inf')
@@ -269,6 +274,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             beta = min(beta, v)
         return v
 
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
@@ -288,14 +294,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         acciones_legales = gameState.getLegalActions(0)
         for accion in acciones_legales:
             siguiente_estado = gameState.generateSuccessor(0, accion)
-            #print(f"siguiente accion: {accion}")
+            # print(f"siguiente accion: {accion}")
             v_actual = self.exp_value(siguiente_estado, 1, profundidad)
             if v_actual > v_max:
                 v_max = v_actual
                 mejor_accion = accion
         return mejor_accion
 
-        #util.raiseNotDefined()
+        # util.raiseNotDefined()
 
     def max_value(self, gameState, profundidad):
         v = float('-inf')
@@ -326,6 +332,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         v /= len(acciones_legales)
         return v
 
+
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -334,7 +341,50 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()  # posición (x, y)
+    # print("newPos = " + str(pacmanPos))
+    newFood = currentGameState.getFood()  # comida true/false (grid)
+    # print("newFood = " + str(newFood))
+    newGhostStates = currentGameState.getGhostStates()
+    # print("newGhostStates = " + str(newGhostStates))  # estado de los fantasmas (como si fuera pacmnan
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    # print("newScaredTimes = " + str(newScaredTimes))
+
+    # Calcular la distancia a la comida más cercana
+    dist_comida_mas_cercana = float('inf')
+    for comida in newFood.asList():
+        dist_actual = manhattanDistance(pacmanPos, comida)
+        if dist_actual < dist_comida_mas_cercana:
+            dist_comida_mas_cercana = dist_actual
+
+    # Calcular la distancia media a los fantasmas
+    dist_media_fantasmas = 0
+    for fantasma_est in newGhostStates:
+        fantasma_pos = fantasma_est.getPosition()
+        dist_media_fantasmas += manhattanDistance(pacmanPos, fantasma_pos)
+    dist_media_fantasmas /= len(newGhostStates)
+
+    # Calcular el tiempo medio que les queda a los fantasmas asustados
+    tiempo_medio_scared = 0
+    for scared_time in newScaredTimes:
+        tiempo_medio_scared += scared_time
+    tiempo_medio_scared /= len(newScaredTimes)
+
+    # Calcular la puntuación del estado
+    # (si los fantasmas están asustados, cuanto más CERCA estemos de los fantasmas --> MEJOR;
+    # si no lo están, cuanto más LEJOS estemos --> MEJOR)
+    if tiempo_medio_scared > 0:
+        puntuacion_estado = currentGameState.getScore() * 2 + \
+                            (1 / dist_comida_mas_cercana) * 20 + (1 / dist_media_fantasmas) * 0.01 + tiempo_medio_scared / 40
+    else:
+        puntuacion_estado = currentGameState.getScore() * 2 + \
+                             (1 / dist_comida_mas_cercana) * 20 + (dist_media_fantasmas) * 0.01 + tiempo_medio_scared / 40
+
+    #puntuacion_estado = currentGameState.getScore() * 2 + (1 / dist_comida_mas_cercana) * 20
+    return puntuacion_estado
+
+    # util.raiseNotDefined()
+
 
 # Abbreviation
 better = betterEvaluationFunction
