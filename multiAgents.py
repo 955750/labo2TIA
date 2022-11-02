@@ -69,38 +69,45 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(
             action)  # mapa con pacman, fantasma, cocos y puntuación (del estado sucesor)
-        print("successorGameState = " + str(successorGameState))
+        #print("successorGameState = " + str(successorGameState))
         newPos = successorGameState.getPacmanPosition()  # posición (x, y)
-        print("newPos = " + str(newPos))
+        #print("newPos = " + str(newPos))
         newFood = successorGameState.getFood()  # comida true/false (grid)
-        print("newFood = " + str(newFood))
+        #print("newFood = " + str(newFood))
         newGhostStates = successorGameState.getGhostStates()
-        print("newGhostStates = " + str(newGhostStates))  # estado de los fantasmas (como si fuera pacmnan
+        #print("newGhostStates = " + str(newGhostStates))  # estado de los fantasmas (como si fuera pacmnan
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        print("newScaredTimes = " + str(newScaredTimes))
+        #print("newScaredTimes = " + str(newScaredTimes))
 
         "*** YOUR CODE HERE ***"
-        # Calcular distancia con la comida más cercana
-        dist_comida_min = -1  # valor por defecto para indicar que todavía no tiene valor
-        for i in newFood.asList():
-            distancia_actual_comida = manhattanDistance(newPos, i)
-            if dist_comida_min == -1:
-                dist_comida_min = distancia_actual_comida
-            else:
-                if distancia_actual_comida < dist_comida_min:
-                    dist_comida_min = distancia_actual_comida
-        puntuacion_pos = (120 - dist_comida_min) * len(newGhostStates)
-        # Calcular distancia con la comida más cercana
-        dist_total_fantasmas = 0
-        for ghost in newGhostStates:
-            pos_fantasma = ghost.getPosition()
-            distancia_actual_fantasma = manhattanDistance(newPos, pos_fantasma)
-            dist_total_fantasmas += distancia_actual_fantasma
-        puntuacion_neg = 10 - dist_total_fantasmas
+        dist_comida_mas_cercana = float('inf')
+        for comida in newFood.asList():
+            dist_actual = manhattanDistance(newPos, comida)
+            if dist_actual < dist_comida_mas_cercana:
+                dist_comida_mas_cercana = dist_actual
 
-        valor_final = puntuacion_pos - puntuacion_neg
-        print(valor_final)
-        return valor_final
+        # Calcular la distancia media a los fantasmas
+        dist_media_fantasmas = 0
+        for fantasma_est in newGhostStates:
+            fantasma_pos = fantasma_est.getPosition()
+            dist_media_fantasmas += manhattanDistance(newPos, fantasma_pos)
+        dist_media_fantasmas /= len(newGhostStates)
+
+        # Calcular el tiempo medio que les queda a los fantasmas asustados
+        tiempo_medio_scared = 0
+        for scared_time in newScaredTimes:
+            tiempo_medio_scared += scared_time
+        tiempo_medio_scared /= len(newScaredTimes)
+
+        # puntuacion_estado = successorGameState.getScore() * 2 + \
+        #                     (1 / dist_comida_mas_cercana) * 20 + (
+        #                         dist_media_fantasmas) * 0.01 + tiempo_medio_scared / 40
+
+
+        puntuacion_estado = successorGameState.getScore() * 2 + (1 / dist_comida_mas_cercana) * 20
+
+        return puntuacion_estado
+
         # return successorGameState.getScore()
 
 
